@@ -34,7 +34,7 @@ CREATE TABLE tickets (
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     title VARCHAR(150) NOT NULL,
     description TEXT,
-    status ticket_status DEFAULT 'PENDING',
+    status ticket_status NOT NULL DEFAULT 'PENDING',
     assigned_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
