@@ -9,7 +9,7 @@ Koda es una API RESTful construida con **Node.js** y **Express** para gestionar 
 *   **Base de Datos:** PostgreSQL (alojado en Neon)
 *   **Driver DB:** `pg` (manejo nativo con Connection Pooling)
 *   **Validación de Datos:** Zod
-*   **Seguridad:** Bcrypt.js (Hasheo de contraseñas), CORS, Helmet (recomendado).
+*   **Seguridad:** bcryptjs (Hasheo de contraseñas), CORS, Helmet (recomendado).
 *   **Gestor de Paquetes:** Yarn Berry (v4)
 
 ---

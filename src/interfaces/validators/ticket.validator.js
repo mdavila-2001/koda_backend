@@ -2,8 +2,8 @@ const { z } = require('zod');
 
 const createTicketSchema = z.object({
     title: z.string()
-        .min(3, "El título es obligatorio")
-        .max(150),
+        .min(3, "El título debe tener al menos 3 caracteres")
+        .max(150, "El título debe tener máximo 150 caracteres"),
     description: z.string().optional(),
     project_id: z.string().uuid("ID de proyecto inválido"),
     assigned_user_id: z.string().uuid().nullable().optional()

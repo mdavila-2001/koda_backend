@@ -9,8 +9,8 @@ class RegisterUser {
         // 1. Regla de Negocio: Verificar si el email ya existe
         const existingUser = await this.userRepository.findByEmail(email);
         if (existingUser) {
-            const error = new Error('User already exists');
-            error.statusCode = 400;
+            const error = new Error('Ya existe un usuario con este correo');
+            error.statusCode = 409;
             throw error;
         }
 

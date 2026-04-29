@@ -5,7 +5,7 @@ const errorHandler = (err, req, res, next) => {
     const message = err.message || "Error Interno del Servidor";
 
     res.status(statusCode).json({
-        status: "Error",
+        status: "error",
         message: message,
         code: statusCode
     });
