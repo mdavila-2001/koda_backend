@@ -2,7 +2,7 @@ const { z } = require('zod');
 
 const createProjectSchema = z.object({
     name: z.string()
-        .min(3, "El nombre del proyecto es muy corto")
+        .min(3, "Project name must be at least 3 characters long")
         .max(100),
     description: z.string()
         .max(500)
@@ -10,7 +10,7 @@ const createProjectSchema = z.object({
 });
 
 const addMemberSchema = z.object({
-    user_id: z.string().uuid("ID de usuario inválido (UUID requerido)")
+    email: z.string().email("Invalid email format")
 });
 
 module.exports = { createProjectSchema, addMemberSchema };

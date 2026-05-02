@@ -9,6 +9,14 @@ class PostgresUserRepository {
     return rows[0];
   }
 
+  async findById(id) {
+    const { rows } = await db.query(
+      'SELECT * FROM users WHERE id = $1',
+      [id]
+    );
+    return rows[0] || null;
+  }
+
   async create(user) {
     const { name, email, password } = user;
     const { rows } = await db.query(

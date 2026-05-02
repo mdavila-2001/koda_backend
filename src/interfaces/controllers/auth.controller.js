@@ -1,11 +1,13 @@
 const RegisterUser = require('../../application/use-cases/registerUser');
 const LoginUser = require('../../application/use-cases/loginUser');
 const PostgresUserRepository = require('../../infrastructure/repositories/postgresuser.repository');
+const JwtService = require('../../infrastructure/security/jwt.service');
 
 // Inyectamos la dependencia manualmente (SOLID - Inversión de Dependencia)
 const userRepository = new PostgresUserRepository();
+const jwtService = new JwtService();
 const registerUseCase = new RegisterUser(userRepository);
-const loginUseCase = new LoginUser(userRepository);
+const loginUseCase = new LoginUser(userRepository, jwtService);
 
 class AuthController {
     async register(req, res, next) {

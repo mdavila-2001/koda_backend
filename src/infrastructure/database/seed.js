@@ -3,14 +3,14 @@ const bcrypt = require('bcryptjs');
 
 async function seedDatabase() {
     try {
-        console.log('🌱 Iniciando el proceso de seeding...');
+        console.log('Iniciando el proceso de seeding...');
 
         // 1. Limpiar la base de datos (CASCADE borra todo en cascada)
-        console.log('🧹 Limpiando tablas existentes...');
+        console.log('Limpiando tablas existentes...');
         await pool.query('TRUNCATE TABLE users, projects, project_members, tickets CASCADE;');
 
         // 2. Insertar Usuarios
-        console.log('👥 Insertando usuarios...');
+        console.log('Insertando usuarios...');
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash('password123', salt);
 
@@ -23,10 +23,10 @@ async function seedDatabase() {
             [passwordHash]
         );
         const users = usersResult.rows;
-        console.log(`✅ ${users.length} usuarios creados.`);
+        console.log(`${users.length} usuarios creados.`);
 
         // 3. Insertar Proyectos
-        console.log('📂 Insertando proyectos...');
+        console.log('Insertando proyectos...');
         const projectsResult = await pool.query(
             `INSERT INTO projects (name, description, owner_id) VALUES 
             ('Koda Backend Refactor', 'Migrar a Arquitectura Limpia', $1),
@@ -35,10 +35,10 @@ async function seedDatabase() {
             [users[0].id, users[1].id]
         );
         const projects = projectsResult.rows;
-        console.log(`✅ ${projects.length} proyectos creados.`);
+        console.log(`${projects.length} proyectos creados.`);
 
         // 4. Asignar Miembros a Proyectos
-        console.log('🤝 Asignando miembros a los proyectos...');
+        console.log('Asignando miembros a los proyectos...');
         // Juan (owner) y María están en el proyecto 1
         // María (owner) y Carlos están en el proyecto 2
         await pool.query(
@@ -50,10 +50,10 @@ async function seedDatabase() {
                 projects[1].id, users[1].id, projects[1].id, users[2].id
             ]
         );
-        console.log('✅ Miembros asignados.');
+        console.log('Miembros asignados.');
 
         // 5. Insertar Tickets
-        console.log('🎟️ Insertando tickets...');
+        console.log('Insertando tickets...');
         await pool.query(
             `INSERT INTO tickets (project_id, title, description, status, assigned_user_id) VALUES 
             -- Proyecto 1 (Juan y María)
@@ -70,11 +70,11 @@ async function seedDatabase() {
                 projects[1].id, users[1].id, users[2].id  // Proyecto 2 asignaciones
             ]
         );
-        console.log('✅ Tickets creados.');
+        console.log('Tickets creados.');
 
-        console.log('🎉 Seeding completado exitosamente.');
+        console.log('Seeding completado exitosamente.');
     } catch (error) {
-        console.error('❌ Error durante el seeding:', error);
+        console.error('Error durante el seeding:', error);
     } finally {
         // Cerrar la conexión del pool para que el script termine
         await pool.end();
