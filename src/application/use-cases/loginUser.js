@@ -1,9 +1,9 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 class LoginUser {
-    constructor(userRepository) {
+    constructor(userRepository, jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     async execute({ email, password }) {
@@ -24,11 +24,7 @@ class LoginUser {
         }
 
         // 3. Generar el Token JWT
-        const token = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        const token = this.jwtService.sign({ id: user.id, email: user.email });
 
         // 4. Retornar los datos (sin el hash de la contraseña)
         return {
