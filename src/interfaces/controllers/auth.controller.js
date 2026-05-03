@@ -1,9 +1,13 @@
 const RegisterUser = require('../../application/use-cases/registerUser');
+const LoginUser = require('../../application/use-cases/loginUser');
 const PostgresUserRepository = require('../../infrastructure/repositories/postgresuser.repository');
+const JwtService = require('../../infrastructure/security/jwt.service');
 
 // Inyectamos la dependencia manualmente (SOLID - Inversión de Dependencia)
 const userRepository = new PostgresUserRepository();
+const jwtService = new JwtService();
 const registerUseCase = new RegisterUser(userRepository);
+const loginUseCase = new LoginUser(userRepository, jwtService);
 
 class AuthController {
     async register(req, res, next) {
@@ -13,14 +17,24 @@ class AuthController {
             
             res.status(201).json({
                 status: 'success',
-                data: {
-                    id: newUser.id,
-                    name: newUser.name,
-                    email: newUser.email
-                }
+                data: newUser
             });
         } catch (error) {
-            next(error); // Pasa el error al errorHandler de Marcelo
+            next(error);
+        }
+    }
+
+    async login(req, res, next) {
+        try {
+            const { email, password } = req.body;
+            const result = await loginUseCase.execute({ email, password });
+            
+            res.status(200).json({
+                status: 'success',
+                data: result
+            });
+        } catch (error) {
+            next(error);
         }
     }
 }

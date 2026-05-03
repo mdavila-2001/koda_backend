@@ -1,14 +1,17 @@
+const AppError = require('../../domain/errors/AppError');
+
 const errorHandler = (err, req, res, next) => {
-    console.error(`[Error]`, err);
+    if (!err.isOperational) {
+        console.error(`[Error no Manejado]`, err);
+    }
 
     const statusCode = err.statusCode || 500;
     
-    const message = statusCode === 500 
-        ? "Error Interno del Servidor" 
-        : err.message;
+    const message = err.isOperational ? err.message : 'Error Interno del Servidor';
+    const status = err.status || 'error';
 
     res.status(statusCode).json({
-        status: "error",
+        status: status,
         message: message,
         code: statusCode
     });
