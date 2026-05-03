@@ -1,6 +1,7 @@
 const db = require('../database/db');
+const ProjectRepository = require('../../application/repositories/project.repository');
 
-class PostgresProjectRepository {
+class PostgresProjectRepository extends ProjectRepository {
   async create({ name, description, owner_id }) {
     const { rows } = await db.query(
       'INSERT INTO projects (name, description, owner_id) VALUES ($1, $2, $3) RETURNING *',

@@ -1,6 +1,7 @@
 const db = require('../database/db');
+const TicketRepository = require('../../application/repositories/ticket.repository');
 
-class PostgresTicketRepository {
+class PostgresTicketRepository extends TicketRepository {
     _handleDatabaseError(error) {
         if (error.code === 'P0001') {
             const customError = new Error(error.message);
