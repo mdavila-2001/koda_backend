@@ -11,5 +11,6 @@ router.use(isAuth);
 router.post('/', validate(createTicketSchema), ticketController.create);
 router.get('/project/:projectId', ticketController.getByProjectId);
 router.patch('/:id', validate(updateTicketSchema), ticketController.update);
+router.delete('/:id', ticketController.delete);
 
 module.exports = router;

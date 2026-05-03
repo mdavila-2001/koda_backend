@@ -1,6 +1,7 @@
 const db = require('../database/db');
+const TicketRepository = require('../../application/repositories/ticket.repository');
 
-class PostgresTicketRepository {
+class PostgresTicketRepository extends TicketRepository {
     _handleDatabaseError(error) {
         if (error.code === 'P0001') {
             const customError = new Error(error.message);
@@ -70,6 +71,14 @@ class PostgresTicketRepository {
         } catch (error) {
             this._handleDatabaseError(error);
         }
+    }
+
+    async delete(ticketId) {
+        const { rows } = await db.query(
+            'DELETE FROM tickets WHERE id = $1 RETURNING *',
+            [ticketId]
+        );
+        return rows[0] || null;
     }
 }
 

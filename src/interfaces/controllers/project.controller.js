@@ -5,6 +5,7 @@ const GetProjects = require('../../application/use-cases/project/getProjects');
 const GetProjectDetails = require('../../application/use-cases/project/getProjectDetails');
 const AddProjectMember = require('../../application/use-cases/project/addProjectMember');
 const GetProjectMembersList = require('../../application/use-cases/project/getProjectMembersList');
+const UpdateProject = require('../../application/use-cases/project/updateProject');
 
 // Manual Dependency Injection
 const projectRepository = new PostgresProjectRepository();
@@ -14,6 +15,7 @@ const getProjectsUseCase = new GetProjects(projectRepository);
 const getProjectDetailsUseCase = new GetProjectDetails(projectRepository);
 const addProjectMemberUseCase = new AddProjectMember(projectRepository, userRepository);
 const getProjectMembersListUseCase = new GetProjectMembersList(projectRepository);
+const updateProjectUseCase = new UpdateProject(projectRepository);
 
 class ProjectController {
     async create(req, res, next) {
@@ -88,6 +90,23 @@ class ProjectController {
             res.status(200).json({
                 status: 'success',
                 data: members
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async update(req, res, next) {
+        try {
+            const userId = req.userId;
+            const projectId = req.params.id;
+            const updateData = req.body;
+
+            const updatedProject = await updateProjectUseCase.execute(projectId, userId, updateData);
+            
+            res.status(200).json({
+                status: 'success',
+                data: updatedProject
             });
         } catch (error) {
             next(error);

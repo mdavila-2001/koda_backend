@@ -1,6 +1,7 @@
 const db = require('../database/db');
+const ProjectRepository = require('../../application/repositories/project.repository');
 
-class PostgresProjectRepository {
+class PostgresProjectRepository extends ProjectRepository {
   async create({ name, description, owner_id }) {
     const { rows } = await db.query(
       'INSERT INTO projects (name, description, owner_id) VALUES ($1, $2, $3) RETURNING *',
@@ -54,6 +55,28 @@ class PostgresProjectRepository {
       [projectId]
     );
     return rows;
+  }
+
+  async update(projectId, updateData) {
+    const fields = [];
+    const values = [];
+    let index = 1;
+
+    for (const [key, value] of Object.entries(updateData)) {
+      if (value !== undefined) {
+        fields.push(`${key} = $${index}`);
+        values.push(value);
+        index++;
+      }
+    }
+
+    if (fields.length === 0) return null;
+
+    const query = `UPDATE projects SET ${fields.join(', ')} WHERE id = $${index} RETURNING *`;
+    values.push(projectId);
+
+    const { rows } = await db.query(query, values);
+    return rows[0] || null;
   }
 }
 
