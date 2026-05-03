@@ -3,6 +3,7 @@ const PostgresTicketRepository = require('../../infrastructure/repositories/post
 const CreateTicket = require('../../application/use-cases/ticket/createTicket');
 const GetProjectTickets = require('../../application/use-cases/ticket/getProjectTickets');
 const UpdateTicket = require('../../application/use-cases/ticket/updateTicket');
+const DeleteTicket = require('../../application/use-cases/ticket/deleteTicket');
 
 // Manual Dependency Injection
 const projectRepository = new PostgresProjectRepository();
@@ -11,6 +12,7 @@ const ticketRepository = new PostgresTicketRepository();
 const createTicketUseCase = new CreateTicket(ticketRepository, projectRepository);
 const getProjectTicketsUseCase = new GetProjectTickets(ticketRepository, projectRepository);
 const updateTicketUseCase = new UpdateTicket(ticketRepository, projectRepository);
+const deleteTicketUseCase = new DeleteTicket(ticketRepository, projectRepository);
 
 class TicketController {
     async create(req, res, next) {
@@ -56,6 +58,22 @@ class TicketController {
             res.status(200).json({
                 status: 'success',
                 data: updatedTicket
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async delete(req, res, next) {
+        try {
+            const userId = req.userId;
+            const ticketId = req.params.id;
+            
+            const result = await deleteTicketUseCase.execute(userId, ticketId);
+            
+            res.status(200).json({
+                status: 'success',
+                data: result
             });
         } catch (error) {
             next(error);

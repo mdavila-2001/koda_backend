@@ -72,6 +72,14 @@ class PostgresTicketRepository extends TicketRepository {
             this._handleDatabaseError(error);
         }
     }
+
+    async delete(ticketId) {
+        const { rows } = await db.query(
+            'DELETE FROM tickets WHERE id = $1 RETURNING *',
+            [ticketId]
+        );
+        return rows[0] || null;
+    }
 }
 
 module.exports = PostgresTicketRepository;

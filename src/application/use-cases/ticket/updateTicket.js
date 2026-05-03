@@ -23,14 +23,14 @@ class UpdateTicket {
         if (updateData.status && updateData.status !== currentTicket.status) {
             const validTransitions = {
                 'PENDING': ['IN_PROGRESS'],
-                'IN_PROGRESS': ['COMPLETED'],
-                'COMPLETED': []
+                'IN_PROGRESS': ['COMPLETED', 'PENDING'],
+                'COMPLETED': ['IN_PROGRESS']
             };
 
             const allowedStates = validTransitions[currentTicket.status] || [];
             
             if (!allowedStates.includes(updateData.status)) {
-                throw new BusinessRuleError(`Transición de estado inválida de ${currentTicket.status} a ${updateData.status}. Las transiciones permitidas son lineales (PENDIENTE -> EN_PROGRESO -> COMPLETADO).`);
+                throw new BusinessRuleError(`Transición de estado inválida de ${currentTicket.status} a ${updateData.status}. Las transiciones permitidas son bidireccionales (PENDING <-> IN_PROGRESS <-> COMPLETED).`);
             }
         }
 

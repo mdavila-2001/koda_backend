@@ -20,6 +20,10 @@ class TicketRepository {
     async update(ticketId, updateData) {
         throw new Error('ERR_METHOD_NOT_IMPLEMENTED: update');
     }
+
+    async delete(ticketId) {
+        throw new Error('ERR_METHOD_NOT_IMPLEMENTED: delete');
+    }
 }
 
 module.exports = TicketRepository;

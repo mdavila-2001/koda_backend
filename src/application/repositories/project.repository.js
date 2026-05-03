@@ -24,6 +24,10 @@ class ProjectRepository {
     async getProjectMembers(projectId) {
         throw new Error('ERR_METHOD_NOT_IMPLEMENTED: getProjectMembers');
     }
+
+    async update(projectId, updateData) {
+        throw new Error('ERR_METHOD_NOT_IMPLEMENTED: update');
+    }
 }
 
 module.exports = ProjectRepository;
