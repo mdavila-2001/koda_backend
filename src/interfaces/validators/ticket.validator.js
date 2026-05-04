@@ -2,10 +2,10 @@ const { z } = require('zod');
 
 const createTicketSchema = z.object({
     title: z.string()
-        .min(3, "Title must be at least 3 characters")
-        .max(150, "Title must be at most 150 characters"),
+        .min(3, "El título debe tener al menos 3 caracteres")
+        .max(150, "El título debe tener como máximo 150 caracteres"),
     description: z.string().optional(),
-    project_id: z.string().uuid("Invalid project ID"),
+    project_id: z.string().uuid("ID de proyecto inválido"),
     assigned_user_id: z.string().uuid().nullable().optional()
 });
 
@@ -13,7 +13,7 @@ const updateTicketSchema = z.object({
     title: z.string().min(3).optional(),
     description: z.string().optional(),
     status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED'], {
-        errorMap: () => ({ message: "Invalid status. Use: PENDING, IN_PROGRESS or COMPLETED" })
+        errorMap: () => ({ message: "Estado inválido. Use: PENDING, IN_PROGRESS o COMPLETED" })
     }).optional(),
     assigned_user_id: z.string().uuid().nullable().optional()
 });
