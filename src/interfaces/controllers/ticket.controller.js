@@ -5,7 +5,6 @@ const GetProjectTickets = require('../../application/use-cases/ticket/getProject
 const UpdateTicket = require('../../application/use-cases/ticket/updateTicket');
 const DeleteTicket = require('../../application/use-cases/ticket/deleteTicket');
 
-// Manual Dependency Injection
 const projectRepository = new PostgresProjectRepository();
 const ticketRepository = new PostgresTicketRepository();
 

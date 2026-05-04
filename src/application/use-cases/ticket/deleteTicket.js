@@ -8,13 +8,11 @@ class DeleteTicket {
     }
 
     async execute(userId, ticketId) {
-        // Verify ticket exists
         const ticket = await this.ticketRepository.findById(ticketId);
         if (!ticket) {
             throw new NotFoundError('Ticket no encontrado');
         }
-
-        // Verify user belongs to the ticket's project
+        
         const project = await this.projectRepository.findById(ticket.project_id, userId);
         if (!project) {
             throw new ForbiddenError('Acceso denegado para eliminar este ticket');

@@ -8,13 +8,11 @@ class UpdateProject {
     }
 
     async execute(projectId, userId, updateData) {
-        // Verify user has access to the project
         const project = await this.projectRepository.findById(projectId, userId);
         if (!project) {
             throw new NotFoundError('Proyecto no encontrado');
         }
 
-        // Only the owner can edit the project
         if (project.owner_id !== userId) {
             throw new ForbiddenError('Solo el propietario del proyecto puede editarlo');
         }

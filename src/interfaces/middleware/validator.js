@@ -1,9 +1,5 @@
 const { z } = require('zod');
 
-/**
- * Middleware genérico para validar el cuerpo de la petición (req.body)
- * @param {z.ZodSchema} schema - El esquema de validación de Zod
- */
 const validate = (schema) => (req, res, next) => {
   try {
     schema.parse(req.body);

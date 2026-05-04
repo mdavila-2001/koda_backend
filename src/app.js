@@ -9,7 +9,6 @@ const apiRoutes = require('./interfaces/routes/index');
 app.use(cors());
 app.use(express.json());
 
-// Montar todas las rutas bajo /api
 app.use('/api', apiRoutes);
 
 app.get('/', (req, res) => res.json({ status: 'La API de Koda está funcionando correctamente' }));

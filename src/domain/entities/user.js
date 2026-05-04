@@ -3,7 +3,7 @@ class User {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.password = password; // Aquí guardaremos el hash
+        this.password = password;
     }
 }
 

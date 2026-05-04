@@ -9,7 +9,6 @@ class CreateTicket {
     async execute(userId, ticketData) {
         const { project_id } = ticketData;
 
-        // Verify multi-tenant access
         const project = await this.projectRepository.findById(project_id, userId);
         if (!project) {
             const err = new Error('Project not found or access denied');

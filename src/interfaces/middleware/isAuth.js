@@ -14,10 +14,10 @@ const isAuth = (req, res, next) => {
 
     try {
         const decoded = jwtService.verify(token);
-        req.userId = decoded.id; // Adjuntamos el ID del usuario al req para las siguientes capas
+        req.userId = decoded.id;
         next();
     } catch (error) {
-        next(error); // Pasa el error (probablemente 401) al manejador global
+        next(error);
     }
 };
 

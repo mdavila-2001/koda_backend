@@ -5,7 +5,6 @@ class AddProjectMember {
     }
 
     async execute(projectId, ownerId, emailToAdd) {
-        // First verify that the current user is the OWNER of the project
         const project = await this.projectRepository.findById(projectId, ownerId);
         
         if (!project) {

@@ -5,7 +5,6 @@ const isAuth = require('../middleware/isAuth');
 const validate = require('../middleware/validator');
 const { createProjectSchema, addMemberSchema, updateProjectSchema } = require('../validators/project.validator');
 
-// All project routes require authentication
 router.use(isAuth);
 
 router.post('/', validate(createProjectSchema), projectController.create);

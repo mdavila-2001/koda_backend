@@ -7,7 +7,6 @@ const AddProjectMember = require('../../application/use-cases/project/addProject
 const GetProjectMembersList = require('../../application/use-cases/project/getProjectMembersList');
 const UpdateProject = require('../../application/use-cases/project/updateProject');
 
-// Manual Dependency Injection
 const projectRepository = new PostgresProjectRepository();
 const userRepository = new PostgresUserRepository();
 const createProjectUseCase = new CreateProject(projectRepository);
@@ -21,7 +20,7 @@ class ProjectController {
     async create(req, res, next) {
         try {
             const { name, description } = req.body;
-            const owner_id = req.userId; // Extracted by isAuth middleware
+            const owner_id = req.userId;
 
             const newProject = await createProjectUseCase.execute({ name, description, owner_id });
             

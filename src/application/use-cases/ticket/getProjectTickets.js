@@ -7,7 +7,6 @@ class GetProjectTickets {
     }
 
     async execute(userId, projectId) {
-        // Verify multi-tenant access
         const project = await this.projectRepository.findById(projectId, userId);
         if (!project) {
             const err = new Error('Project not found or access denied');

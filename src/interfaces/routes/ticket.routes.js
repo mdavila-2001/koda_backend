@@ -5,7 +5,6 @@ const isAuth = require('../middleware/isAuth');
 const validate = require('../middleware/validator');
 const { createTicketSchema, updateTicketSchema } = require('../validators/ticket.validator');
 
-// All ticket routes require authentication
 router.use(isAuth);
 
 router.post('/', validate(createTicketSchema), ticketController.create);

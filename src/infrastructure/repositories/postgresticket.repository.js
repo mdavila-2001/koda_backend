@@ -5,7 +5,7 @@ class PostgresTicketRepository extends TicketRepository {
     _handleDatabaseError(error) {
         if (error.code === 'P0001') {
             const customError = new Error(error.message);
-            customError.statusCode = 400; // Bad Request
+            customError.statusCode = 400;
             throw customError;
         }
         throw error;
