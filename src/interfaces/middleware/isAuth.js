@@ -4,7 +4,7 @@ const jwtService = new JwtService();
 const isAuth = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer ')) {
         const err = new Error('No autorizado. Token faltante o formato incorrecto.');
         err.statusCode = 401;
         return next(err);

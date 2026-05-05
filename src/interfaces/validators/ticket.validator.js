@@ -5,7 +5,7 @@ const createTicketSchema = z.object({
         .min(3, "El título debe tener al menos 3 caracteres")
         .max(150, "El título debe tener como máximo 150 caracteres"),
     description: z.string().optional(),
-    project_id: z.string().uuid("ID de proyecto inválido"),
+    project_id: z.string().uuid({ message: "ID de proyecto inválido" }),
     assigned_user_id: z.string().uuid().nullable().optional()
 });
 

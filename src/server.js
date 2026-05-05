@@ -1,12 +1,12 @@
 const app = require('./app');
-const db = require('./infrastructure/database/db');
+const sequelize = require('./infrastructure/database/sequelize');
 
 const PORT = process.env.PORT || 3000
 
 const startServer = async () => {
     try {
-        const res = await db.query('SELECT NOW()');
-        console.log('Conexión a la base de datos exitosa:', res.rows[0].now);
+        await sequelize.authenticate();
+        console.log('Conexión a la base de datos (Sequelize) exitosa');
         app.listen(PORT, () => {
             console.log(`Servidor corriendo en el puerto ${PORT}`);
         });

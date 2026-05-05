@@ -5,6 +5,15 @@ class User {
         this.email = email;
         this.password = password;
     }
+
+    toJSON() {
+        return {
+            id: this.id,
+            name: this.name,
+            email: this.email,
+            password: this.password
+        };
+    }
 }
 
 module.exports = User;

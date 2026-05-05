@@ -1,30 +1,21 @@
-const db = require('../database/db');
+const { User } = require('../database/models');
 const UserRepository = require('../../application/repositories/user.repository');
 
 class PostgresUserRepository extends UserRepository {
   async findByEmail(email) {
-    const { rows } = await db.query(
-      'SELECT * FROM users WHERE email = $1', 
-      [email]
-    );
-    return rows[0];
+    const user = await User.findOne({ where: { email } });
+    return user ? user.get({ plain: true }) : null;
   }
 
   async findById(id) {
-    const { rows } = await db.query(
-      'SELECT * FROM users WHERE id = $1',
-      [id]
-    );
-    return rows[0] || null;
+    const user = await User.findByPk(id);
+    return user ? user.get({ plain: true }) : null;
   }
 
-  async create(user) {
-    const { name, email, password } = user;
-    const { rows } = await db.query(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
-      [name, email, password]
-    );
-    return rows[0];
+  async create(userData) {
+    const { name, email, password } = userData;
+    const user = await User.create({ name, email, password });
+    return user.get({ plain: true });
   }
 }
 

@@ -10,7 +10,7 @@ const createProjectSchema = z.object({
 });
 
 const addMemberSchema = z.object({
-    email: z.string().email("Formato de correo electrónico inválido")
+    email: z.string().email({ message: "Formato de correo electrónico inválido" })
 });
 
 const updateProjectSchema = z.object({

@@ -1,10 +1,11 @@
-const db = require('../database/db');
+const { Ticket } = require('../database/models');
 const TicketRepository = require('../../application/repositories/ticket.repository');
 
 class PostgresTicketRepository extends TicketRepository {
     _handleDatabaseError(error) {
-        if (error.code === 'P0001') {
-            const customError = new Error(error.message);
+        // Handle trigger exceptions (PostgreSQL Error Code P0001)
+        if (error.parent?.code === 'P0001') {
+            const customError = new Error(error.parent.message);
             customError.statusCode = 400;
             throw customError;
         }
@@ -12,30 +13,28 @@ class PostgresTicketRepository extends TicketRepository {
     }
 
     async findById(ticketId) {
-        const { rows } = await db.query(
-            'SELECT * FROM tickets WHERE id = $1',
-            [ticketId]
-        );
-        return rows[0] || null;
+        const ticket = await Ticket.findByPk(ticketId);
+        return ticket ? ticket.get({ plain: true }) : null;
     }
 
     async findByProjectId(projectId) {
-        const { rows } = await db.query(
-            'SELECT * FROM tickets WHERE project_id = $1 ORDER BY created_at DESC',
-            [projectId]
-        );
-        return rows;
+        const tickets = await Ticket.findAll({
+            where: { projectId: projectId },
+            order: [['created_at', 'DESC']]
+        });
+        return tickets.map(t => t.get({ plain: true }));
     }
 
     async create({ project_id, title, description, status, assigned_user_id }) {
         try {
-            const { rows } = await db.query(
-                `INSERT INTO tickets (project_id, title, description, status, assigned_user_id) 
-                 VALUES ($1, $2, $3, COALESCE($4, 'PENDING')::ticket_status, $5) 
-                 RETURNING *`,
-                [project_id, title, description, status, assigned_user_id]
-            );
-            return rows[0];
+            const ticket = await Ticket.create({
+                projectId: project_id,
+                title,
+                description,
+                status: status || 'PENDING',
+                assignedUserId: assigned_user_id
+            });
+            return ticket.get({ plain: true });
         } catch (error) {
             this._handleDatabaseError(error);
         }
@@ -43,42 +42,31 @@ class PostgresTicketRepository extends TicketRepository {
 
     async update(ticketId, updateData) {
         try {
-            const fields = [];
-            const values = [];
-            let query = 'UPDATE tickets SET ';
-            
-            let index = 1;
-            for (const [key, value] of Object.entries(updateData)) {
-                if (value !== undefined) {
-                    if (key === 'status') {
-                        fields.push(`status = $${index}::ticket_status`);
-                    } else {
-                        fields.push(`${key} = $${index}`);
-                    }
-                    values.push(value);
-                    index++;
-                }
-            }
+            // Map snake_case to camelCase for Sequelize updateData if necessary
+            const mappedData = {};
+            if (updateData.title !== undefined) mappedData.title = updateData.title;
+            if (updateData.description !== undefined) mappedData.description = updateData.description;
+            if (updateData.status !== undefined) mappedData.status = updateData.status;
+            if (updateData.assigned_user_id !== undefined) mappedData.assignedUserId = updateData.assigned_user_id;
 
-            if (fields.length === 0) return null;
+            const [updatedCount, updatedTickets] = await Ticket.update(mappedData, {
+                where: { id: ticketId },
+                returning: true
+            });
 
-            query += fields.join(', ');
-            query += ` WHERE id = $${index} RETURNING *`;
-            values.push(ticketId);
-
-            const { rows } = await db.query(query, values);
-            return rows[0] || null;
+            return updatedCount > 0 ? updatedTickets[0].get({ plain: true }) : null;
         } catch (error) {
             this._handleDatabaseError(error);
         }
     }
 
     async delete(ticketId) {
-        const { rows } = await db.query(
-            'DELETE FROM tickets WHERE id = $1 RETURNING *',
-            [ticketId]
-        );
-        return rows[0] || null;
+        const ticket = await Ticket.findByPk(ticketId);
+        if (ticket) {
+            await ticket.destroy();
+            return ticket.get({ plain: true });
+        }
+        return null;
     }
 }
 

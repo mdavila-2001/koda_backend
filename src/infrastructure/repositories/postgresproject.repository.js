@@ -1,82 +1,88 @@
-const db = require('../database/db');
+const { Project, ProjectMember, User } = require('../database/models');
+const { Op } = require('sequelize');
 const ProjectRepository = require('../../application/repositories/project.repository');
 
 class PostgresProjectRepository extends ProjectRepository {
   async create({ name, description, owner_id }) {
-    const { rows } = await db.query(
-      'INSERT INTO projects (name, description, owner_id) VALUES ($1, $2, $3) RETURNING *',
-      [name, description, owner_id]
-    );
-    return rows[0];
+    const project = await Project.create({ name, description, ownerId: owner_id });
+    return project.get({ plain: true });
   }
 
   async findByUserId(userId) {
-    const { rows } = await db.query(
-      `SELECT DISTINCT p.* 
-       FROM projects p
-       LEFT JOIN project_members pm ON p.id = pm.project_id
-       WHERE p.owner_id = $1 OR pm.user_id = $1
-       ORDER BY p.created_at DESC`,
-      [userId]
-    );
-    return rows;
+    const projects = await Project.findAll({
+      include: [{
+        model: User,
+        as: 'members',
+        attributes: [],
+        through: { attributes: [] },
+        required: false,
+        where: { id: userId }
+      }],
+      where: {
+        [Op.or]: [
+          { ownerId: userId },
+          { '$members.id$': userId }
+        ]
+      },
+      order: [['created_at', 'DESC']]
+    });
+    return projects.map(p => p.get({ plain: true }));
   }
 
   async findById(projectId, userId) {
-    const { rows } = await db.query(
-      `SELECT DISTINCT p.* 
-       FROM projects p
-       LEFT JOIN project_members pm ON p.id = pm.project_id
-       WHERE p.id = $1 AND (p.owner_id = $2 OR pm.user_id = $2)`,
-      [projectId, userId]
-    );
-    return rows[0];
+    const project = await Project.findOne({
+      include: [{
+        model: User,
+        as: 'members',
+        attributes: [],
+        through: { attributes: [] },
+        required: false,
+        where: { id: userId }
+      }],
+      where: {
+        id: projectId,
+        [Op.or]: [
+          { ownerId: userId },
+          { '$members.id$': userId }
+        ]
+      }
+    });
+    return project ? project.get({ plain: true }) : null;
   }
 
   async addMember(projectId, userId) {
-    const { rows } = await db.query(
-      'INSERT INTO project_members (project_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *',
-      [projectId, userId]
-    );
-    return rows[0];
+    const member = await ProjectMember.findOrCreate({
+      where: { projectId, userId }
+    });
+    return member[0].get({ plain: true });
   }
 
   async getProjectMembers(projectId) {
-    const { rows } = await db.query(
-      `SELECT u.id, u.name, u.email 
-       FROM users u 
-       JOIN project_members pm ON u.id = pm.user_id 
-       WHERE pm.project_id = $1
-       UNION
-       SELECT u.id, u.name, u.email 
-       FROM users u 
-       JOIN projects p ON u.id = p.owner_id 
-       WHERE p.id = $1`,
-      [projectId]
-    );
-    return rows;
+    const project = await Project.findByPk(projectId, {
+      include: [
+        { model: User, as: 'owner', attributes: ['id', 'name', 'email'] },
+        { model: User, as: 'members', attributes: ['id', 'name', 'email'], through: { attributes: [] } }
+      ]
+    });
+
+    if (!project) return [];
+
+    const owner = project.owner.get({ plain: true });
+    const members = project.members.map(m => m.get({ plain: true }));
+
+    // Combine and remove duplicates (though owner might not be in members)
+    const allMembers = [owner, ...members];
+    const uniqueMembers = Array.from(new Map(allMembers.map(m => [m.id, m])).values());
+    
+    return uniqueMembers;
   }
 
   async update(projectId, updateData) {
-    const fields = [];
-    const values = [];
-    let index = 1;
-
-    for (const [key, value] of Object.entries(updateData)) {
-      if (value !== undefined) {
-        fields.push(`${key} = $${index}`);
-        values.push(value);
-        index++;
-      }
-    }
-
-    if (fields.length === 0) return null;
-
-    const query = `UPDATE projects SET ${fields.join(', ')} WHERE id = $${index} RETURNING *`;
-    values.push(projectId);
-
-    const { rows } = await db.query(query, values);
-    return rows[0] || null;
+    const [updatedCount, updatedProjects] = await Project.update(updateData, {
+      where: { id: projectId },
+      returning: true
+    });
+    return updatedCount > 0 ? updatedProjects[0].get({ plain: true }) : null;
   }
 }
 
